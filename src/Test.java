@@ -54,80 +54,31 @@ public class Test {
         }
     }
 
-    //更新  数据库操作通常包装一个类存放参数值  项目中方法参数最多3个 多出的封装一个类
-    public static void update(User user) {
-        Connection conn = DbUtils.getConnection();
-        String sql = "update user1 set name=?,age=? where id=? ";
-        PreparedStatement ps = null;
-        try {
-            ps = conn.prepareStatement(sql);
-            ps.setObject(1, user.getName());
-            ps.setObject(2, user.getAge());
-            ps.setObject(3, user.getId());
-            int row = ps.executeUpdate();
-            if (row > 0) {
-                System.out.println("更新成功");
-            } else {
-                System.out.println("更新失败");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            DbUtils.close(conn, ps);
-        }
-    }
 
     public static void main(String[] args) {
 //        select();
-//        add();
-//        del(11);
-        update(new User(11, "诸葛亮", 31));
-
+//        add(new User("曹操", 31));
+//        del(new User(6));
+        update(new User(7, "诸葛亮", 31));
     }
 
-    //添加
-    public static void add() {
-        //调用自定义封装类的方法getConnection() 获取数据库连接对象
-        Connection conn = DbUtils.getConnection();
-        String sql = "insert into user1(id,name,age) values(?,?,?) ";
-        //数据库里面id是主键且自增长 插入可以忽略或者设置null 数据库会自动给id设值
-        PreparedStatement ps = null;
-        try {
-            ps = conn.prepareStatement(sql);
-            ps.setObject(1, null); //给第1个参数设置值
-            ps.setObject(2, "曹操"); //给第2个参数设置值
-            ps.setObject(3, 56); //给第2个参数设置值
-            int row = ps.executeUpdate();
-            if (row > 0) {
-                System.out.println("添加成功");
-            } else {
-                System.out.println("添加失败");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            DbUtils.close(conn, ps);
-        }
+    //添加  数据库操作通常包装一个类存放参数值  项目中方法参数最多3个 多出的封装一个类
+    public static void add(User user) {
+        //数据库里面id是主键且自增长 插入可以忽略 数据库会自动给id设值
+        String sql = "insert into user1(name,age) values(?,?) ";
+        //使用自定义封装方法 通用增删改 数据参数要一致
+        DbUtils.executeSQL(sql, user.getName(), user.getAge());
     }
 
     //删除    删除操作通常是绑定id
-    public static void del(Integer id) {
-        Connection conn = DbUtils.getConnection();
+    public static void del(User user) {
         String sql = "delete from user1 where id=?";
-        PreparedStatement ps = null;
-        try {
-            ps = conn.prepareStatement(sql);
-            ps.setObject(1, id);
-            int row = ps.executeUpdate();
-            if (row > 0) {
-                System.out.println("删除成功");
-            } else {
-                System.out.println("删除失败");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            DbUtils.close(conn, ps);
-        }
+        DbUtils.executeSQL(sql, user.getId());
+    }
+
+    //更新
+    public static void update(User user) {
+        String sql = "update user1 set name=?,age=? where id=? ";
+        DbUtils.executeSQL(sql, user.getName(), user.getAge(), user.getId());
     }
 }
